@@ -1,0 +1,65 @@
+name: 'Upsert Context7'
+description: 'Add or update library documentation on Context7.com'
+author: 'rennf93'
+
+branding:
+  icon: 'book-open'
+  color: 'blue'
+
+inputs:
+  operation:
+    description: 'Operation to perform: "add" or "refresh"'
+    required: true
+    default: 'refresh'
+
+  library-name:
+    description: 'Library name in format "/owner/repo" (auto-detected if not provided)'
+    required: false
+
+  repo-url:
+    description: 'Repository URL (auto-detected if not provided)'
+    required: false
+
+  timeout:
+    description: 'Request timeout in seconds'
+    required: false
+    default: '1800'
+
+outputs:
+  success:
+    description: 'Whether the operation was successful'
+    value: ${{ steps.context7-action.outputs.success }}
+
+  status-code:
+    description: 'HTTP status code from Context7 API'
+    value: ${{ steps.context7-action.outputs.status-code }}
+
+  message:
+    description: 'Response message from Context7 API'
+    value: ${{ steps.context7-action.outputs.message }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run Context7 upsert action
+      id: context7-action
+      shell: bash
+      run: python "${{ github.action_path }}/src/main.py"
+      env:
+        INPUT_OPERATION: ${{ inputs.operation }}
+        INPUT_LIBRARY_NAME: ${{ inputs.library-name }}
+        INPUT_REPO_URL: ${{ inputs.repo-url }}
+        INPUT_TIMEOUT: ${{ inputs.timeout }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SERVER_URL: ${{ github.server_url }}

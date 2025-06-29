@@ -1,0 +1,63 @@
+# Example workflow showing how to use the upsert-context7 GitHub Action
+# Copy this to .github/workflows/ in your repository
+
+name: Update Context7 Documentation
+
+on:
+  # Automatically update docs on pushes to main branches
+  push:
+    branches: [ main, master ]
+
+  # Update docs when releasing
+  release:
+    types: [ published ]
+
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Operation to perform'
+        required: true
+        default: 'refresh'
+        type: choice
+        options:
+          - refresh
+          - add
+
+jobs:
+  update-context7:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update Context7 Documentation
+        id: context7
+        uses: rennf93/upsert-context7@v1
+        with:
+          operation: ${{ github.event.inputs.operation || 'refresh' }}
+          # library-name: "/custom/repo"  # Optional: override auto-detection
+          # repo-url: "https://github.com/custom/repo"  # Optional: override auto-detection
+          # timeout: 60  # Optional: custom timeout
+
+      - name: Show results
+        run: |
+          echo "✅ Operation completed!"
+          echo "Success: ${{ steps.context7.outputs.success }}"
+          echo "Status Code: ${{ steps.context7.outputs.status-code }}"
+          echo "Message: ${{ steps.context7.outputs.message }}"
+
+      - name: Handle success
+        if: steps.context7.outputs.success == 'true'
+        run: |
+          echo "🎉 Context7 documentation updated successfully!"
+          echo "Your docs should be available at https://context7.com"
+
+      - name: Handle failure
+        if: steps.context7.outputs.success == 'false'
+        run: |
+          echo "❌ Context7 update failed"
+          echo "Error: ${{ steps.context7.outputs.message }}"
+          # You can add additional error handling here
+          # For example, send notifications, create issues, etc.
