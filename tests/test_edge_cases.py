@@ -6,6 +6,7 @@ Edge case tests for Context7Action GitHub Action
 import os
 import sys
 from unittest.mock import Mock, patch
+from urllib.parse import urlparse
 
 import requests
 
@@ -184,8 +185,10 @@ class TestContext7ActionEdgeCases:
 
         action = Context7Action()
 
-        # Should default to github.com
-        assert action.repo_url.startswith("https://github.com")
+        # Should default to github.com - use proper URL validation
+        parsed_url = urlparse(action.repo_url)
+        assert parsed_url.scheme == "https"
+        assert parsed_url.hostname == "github.com"
         assert action.library_name == "/user/repo"
 
     def test_zero_timeout(self) -> None:

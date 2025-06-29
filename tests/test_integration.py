@@ -7,6 +7,7 @@ These tests make actual API calls (in test mode)
 import os
 import sys
 import tempfile
+from urllib.parse import urlparse
 
 import pytest
 
@@ -154,6 +155,7 @@ class TestContext7ActionIntegration:
 
         action = Context7Action()
 
-        # Should handle gracefully
+        # Should handle gracefully - use proper URL validation
         assert action.library_name == "/incomplete"
-        assert action.repo_url.endswith("/incomplete")
+        parsed_url = urlparse(action.repo_url)
+        assert parsed_url.path.endswith("/incomplete")
