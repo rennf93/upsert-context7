@@ -156,4 +156,4 @@ class TestContext7ActionIntegration:
 
         # Should handle gracefully
         assert action.library_name == "/incomplete"
-        assert "incomplete" in action.repo_url
+        assert action.repo_url.endswith("/incomplete")

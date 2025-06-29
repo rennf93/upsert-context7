@@ -154,7 +154,7 @@ class TestContext7ActionEdgeCases:
 
         # Should handle unicode without crashing
         assert "репозиторий" in action.library_name
-        assert "репозиторий" in action.repo_url
+        assert action.repo_url.endswith("/test/репозиторий")
 
     def test_github_repository_with_dots(self) -> None:
         """Test handling of repository names with dots"""
@@ -164,7 +164,7 @@ class TestContext7ActionEdgeCases:
         action = Context7Action()
 
         assert action.library_name == "/user/repo.name.with.dots"
-        assert "repo.name.with.dots" in action.repo_url
+        assert action.repo_url.endswith("/user/repo.name.with.dots")
 
     def test_malformed_github_server_url(self) -> None:
         """Test handling of malformed GitHub server URL"""
@@ -175,7 +175,7 @@ class TestContext7ActionEdgeCases:
 
         # Should still construct some URL
         assert len(action.repo_url) > 0
-        assert "user/repo" in action.repo_url
+        assert action.repo_url.endswith("/user/repo")
 
     def test_missing_github_server_url(self) -> None:
         """Test handling when GITHUB_SERVER_URL is missing"""
@@ -185,7 +185,7 @@ class TestContext7ActionEdgeCases:
         action = Context7Action()
 
         # Should default to github.com
-        assert "https://github.com" in action.repo_url
+        assert action.repo_url.startswith("https://github.com")
         assert action.library_name == "/user/repo"
 
     def test_zero_timeout(self) -> None:
