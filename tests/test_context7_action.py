@@ -215,8 +215,8 @@ class TestContext7Action:
         assert status_code == 200
         assert "Refresh process started successfully" in message
         mock_post.assert_called_once_with(
-            "https://context7.com/api/refresh-library",
-            json={"libraryName": "/test/repo"},
+            "https://context7.com/refresh-library",
+            json={"requestedLibrary": "/test/repo"},
             timeout=1800,
         )
 
