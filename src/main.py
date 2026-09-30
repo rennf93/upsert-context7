@@ -148,8 +148,8 @@ class Context7Action:
 
     def refresh_library(self) -> tuple[bool, int, str]:
         """Refresh library documentation on Context7"""
-        url = "https://context7.com/api/refresh-library"
-        payload = {"libraryName": self.library_name}
+        url = "https://context7.com/refresh-library"
+        payload = {"requestedLibrary": self.library_name}
 
         self.log_info(f"Refreshing library documentation: {self.library_name}")
         self.log_info("⏳ This may take several minutes for large libraries...")
