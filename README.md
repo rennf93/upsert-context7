@@ -12,7 +12,7 @@ Add this step to your workflow to automatically update your library's documentat
 
 ```yaml
 - name: Update Context7 Documentation
-  uses: rennf93/upsert-context7@v1
+  uses: rennf93/upsert-context7@1.1
   with:
     operation: refresh
 ```
@@ -35,7 +35,7 @@ jobs:
 
       - name: Update Context7 Documentation
         id: context7
-        uses: rennf93/upsert-context7@v1
+        uses: rennf93/upsert-context7@1.1
         with:
           operation: refresh
 
@@ -69,7 +69,7 @@ jobs:
 Updates documentation for an existing library on Context7:
 
 ```yaml
-- uses: rennf93/upsert-context7@v1
+- uses: rennf93/upsert-context7@1.1
   with:
     operation: refresh
     library-name: "/owner/repo"  # Optional, auto-detected
@@ -79,7 +79,7 @@ Updates documentation for an existing library on Context7:
 Adds a new library to Context7:
 
 ```yaml
-- uses: rennf93/upsert-context7@v1
+- uses: rennf93/upsert-context7@1.1
   with:
     operation: add
     repo-url: "https://github.com/owner/repo"  # Optional, auto-detected
@@ -92,13 +92,13 @@ Adds a new library to Context7:
 ```yaml
 - name: Add to Context7 (if new release)
   if: github.event_name == 'release'
-  uses: rennf93/upsert-context7@v1
+  uses: rennf93/upsert-context7@1.1
   with:
     operation: add
 
 - name: Refresh Context7 (on manual trigger)
   if: github.event_name == 'workflow_dispatch'
-  uses: rennf93/upsert-context7@v1
+  uses: rennf93/upsert-context7@1.1
   with:
     operation: refresh
 ```
@@ -106,7 +106,7 @@ Adds a new library to Context7:
 ### With Custom Parameters
 
 ```yaml
-- uses: rennf93/upsert-context7@v1
+- uses: rennf93/upsert-context7@1.1
   with:
     operation: refresh
     library-name: "/myorg/mycustomlib"
@@ -118,7 +118,7 @@ Adds a new library to Context7:
 ```yaml
 - name: Update Context7
   id: update
-  uses: rennf93/upsert-context7@v1
+  uses: rennf93/upsert-context7@1.1
   with:
     operation: refresh
   continue-on-error: true

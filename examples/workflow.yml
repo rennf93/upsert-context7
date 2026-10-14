@@ -34,7 +34,7 @@ jobs:
 
       - name: Update Context7 Documentation
         id: context7
-        uses: rennf93/upsert-context7@v1
+        uses: rennf93/upsert-context7@1.1
         with:
           operation: ${{ github.event.inputs.operation || 'refresh' }}
           # library-name: "/custom/repo"  # Optional: override auto-detection
