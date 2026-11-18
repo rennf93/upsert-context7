@@ -549,8 +549,8 @@ class TestContext7Action:
         """Test initialization with None timeout causing TypeError"""
         # Mock os.getenv to return None for timeout, which causes TypeError
         with patch("os.getenv") as mock_getenv:
-            mock_getenv.side_effect = (
-                lambda key, default="": None if key == "INPUT_TIMEOUT" else default
+            mock_getenv.side_effect = lambda key, default="": (
+                None if key == "INPUT_TIMEOUT" else default
             )
 
             action = Context7Action()

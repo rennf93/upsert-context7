@@ -1,27 +1,40 @@
 #!/usr/bin/env python3
 """
 Integration tests for Context7Action GitHub Action
-These tests make actual API calls (in test mode)
+The Context7 HTTP API is mocked: the live service accepts requests for
+nonexistent libraries and changes behavior without notice, so real calls make
+the suite non-deterministic and register junk libraries on the service.
 """
 
 import os
 import sys
 import tempfile
+from unittest.mock import MagicMock, patch
 from urllib.parse import urlparse
 
 import pytest
+import requests
 
 # Add src to path for importing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from src.main import Context7Action
 
 
+def _api_response(status_code: int, text: str) -> MagicMock:
+    response = MagicMock()
+    response.status_code = status_code
+    response.text = text
+    return response
+
+
 class TestContext7ActionIntegration:
     """Integration tests for Context7Action"""
 
     @pytest.mark.integration
-    def test_refresh_library_real_api_call(self) -> None:
-        """Test refresh with a real API call"""
+    @patch("requests.post")
+    def test_refresh_library_api_error(self, mock_post: MagicMock) -> None:
+        """Test refresh when the API reports an unknown library"""
+        mock_post.return_value = _api_response(404, "Library not found")
         os.environ["INPUT_OPERATION"] = "refresh"
         os.environ["INPUT_LIBRARY_NAME"] = "/test/nonexistent-repo-12345"
         os.environ["INPUT_TIMEOUT"] = "10"  # Shorter timeout for tests
@@ -35,8 +48,11 @@ class TestContext7ActionIntegration:
         assert len(message) > 0
 
     @pytest.mark.integration
-    def test_add_library_real_api_call(self) -> None:
-        """Test add with a real API call (API accepts requests and starts parsing)"""
+    @patch("requests.post")
+    def test_add_library_api_accepts_request(self, mock_post: MagicMock) -> None:
+        """Test add when the API accepts the request and starts parsing"""
+        mock_post.return_value = _api_response(200, "")
+        mock_post.return_value.json.return_value = {"message": "Parsing started"}
         os.environ["INPUT_OPERATION"] = "add"
         os.environ["INPUT_REPO_URL"] = "https://github.com/test/nonexistent-repo-12345"
         os.environ["INPUT_TIMEOUT"] = "10"  # Shorter timeout for tests
@@ -49,8 +65,10 @@ class TestContext7ActionIntegration:
         assert status_code in [200, 201, 202, 400, 401, 404, 429, 500]
         assert len(message) > 0
 
-    def test_full_workflow_with_github_output(self) -> None:
+    @patch("requests.post")
+    def test_full_workflow_with_github_output(self, mock_post: MagicMock) -> None:
         """Test the full workflow including GitHub output file"""
+        mock_post.return_value = _api_response(404, "Library not found")
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
             try:
                 os.environ["GITHUB_OUTPUT"] = tmp_file.name
@@ -111,8 +129,10 @@ class TestContext7ActionIntegration:
         assert action.operation == "refresh"
 
     @pytest.mark.integration
-    def test_api_timeout_handling(self) -> None:
+    @patch("requests.post")
+    def test_api_timeout_handling(self, mock_post: MagicMock) -> None:
         """Test that API timeout is handled gracefully"""
+        mock_post.side_effect = requests.Timeout("timed out")
         os.environ["INPUT_OPERATION"] = "refresh"
         os.environ["INPUT_LIBRARY_NAME"] = "/test/repo"
         os.environ["INPUT_TIMEOUT"] = "1"  # Very short timeout
